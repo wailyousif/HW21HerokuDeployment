@@ -1,6 +1,7 @@
 package com.ironyard.controller;
 
 import com.ironyard.data.ChatUser;
+import com.ironyard.data.UserPermission;
 import com.ironyard.repo.ChatUserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ public class LoginController {
     @RequestMapping(path = "/authenticate", method = RequestMethod.POST)
     public String login(HttpServletRequest request, Model data, @RequestParam(name = "username") String usr, @RequestParam String password)
     {
+        addSuperUserForSimulation();
 
         ChatUser found = chatUserRepo.findByUsernameAndPassword(usr, password);
         String destinationView = "/secure/home";
@@ -41,6 +43,24 @@ public class LoginController {
             destinationView = "redirect:/secure/msgboards/show";
         }
         return destinationView;
+    }
+
+
+    private void addSuperUserForSimulation()
+    {
+        String superUser_Username = "wail";
+        String superUser_Password = "wail";
+        String superUser_DisplayName = "Wail M. Yousif";
+
+        ChatUser found = chatUserRepo.findByUsernameAndPassword(superUser_Username, superUser_Username);
+        if (found == null)
+        {
+            UserPermission permission = new UserPermission(true, true, true);
+            ChatUser chatUser = new ChatUser(superUser_Username, superUser_Username,
+                    superUser_DisplayName, permission);
+
+            chatUserRepo.save(chatUser);
+        }
     }
 
 
